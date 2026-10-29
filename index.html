@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>棒球群島 BASEBALL ARCHIPELAGO</title>
+<meta name="description" content="把中華職棒 1990–2026 的 14 支球團畫成一片群島：浮島、沉島與island之間的隊名交換、合併與重生。一個球團同一性的本體練習。">
+<style>
+:root{
+  --sea-deep:#071a2c; --sea:#0d2d47; --sea-light:#15456a;
+  --sand:#f3e7d0; --ink:#0b1a26; --paper:#fbf7ef;
+  --muted:#8aa3b8; --line:#2b5878; --accent:#e0a458;
+  --serif:"Noto Serif TC","Songti TC","PingFang TC",serif;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);background:var(--sea-deep);color:var(--sand);
+  line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* ---------- 封面 ---------- */
+header.hero{
+  position:relative;padding:72px 0 44px;text-align:center;
+  background:radial-gradient(ellipse at 50% 0%,#12395a 0%,var(--sea-deep) 65%);
+  border-bottom:1px solid var(--line);overflow:hidden;
+}
+.hero h1{font-family:var(--serif);font-size:clamp(38px,7vw,68px);letter-spacing:.14em;font-weight:700;color:var(--sand)}
+.hero .en{font-size:clamp(10px,2vw,13px);letter-spacing:.42em;color:var(--accent);margin-top:10px;text-transform:uppercase}
+.hero .tag{font-family:var(--serif);font-size:clamp(17px,3vw,23px);margin-top:26px;color:#cfe2f0}
+.hero .sub{font-size:13px;color:var(--muted);margin-top:12px;letter-spacing:.05em}
+.hero .counts{margin-top:26px;display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+.counts b{display:block;font-family:var(--serif);font-size:30px;color:var(--accent);line-height:1.2}
+.counts span{font-size:11px;letter-spacing:.2em;color:var(--muted)}
+
+/* ---------- 導覽 ---------- */
+nav{position:sticky;top:0;z-index:50;background:rgba(7,26,44,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:0;padding-bottom:0}
+nav button{
+  background:none;border:none;color:var(--muted);font-family:var(--sans);font-size:14px;
+  padding:15px 16px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;
+}
+nav button:hover{color:var(--sand)}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+section.view{display:none;padding:46px 0 72px}
+section.view.on{display:block}
+h2{font-family:var(--serif);font-size:26px;letter-spacing:.06em;margin-bottom:8px;color:var(--sand)}
+.lede{color:var(--muted);font-size:14px;max-width:760px;margin-bottom:28px}
+
+/* ---------- 地圖 ---------- */
+.mapbox{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:
+  linear-gradient(180deg,#0a2338 0%,#061626 100%);}
+svg.map{display:block;width:100%;height:auto;touch-action:manipulation}
+.isle{cursor:pointer}
+.isle .body{transition:transform .25s ease,opacity .25s}
+.isle:hover .body{transform:translateY(-4px)}
+.isle .nm{font-family:var(--serif);font-size:13px;font-weight:700;fill:var(--sand);text-anchor:middle;pointer-events:none}
+.isle .yr{font-size:8.5px;fill:var(--muted);text-anchor:middle;pointer-events:none;letter-spacing:.08em}
+.isle.dim{opacity:.16}
+.isle.sunk .nm{fill:#7f97ab}
+.cur{fill:none;stroke-linecap:round}
+.curlbl{font-size:8px;fill:#9fc0d8;text-anchor:middle;letter-spacing:.14em;pointer-events:none}
+.legend{display:flex;flex-wrap:wrap;gap:18px;padding:14px 18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);background:rgba(0,0,0,.2)}
+.legend i{display:inline-block;width:22px;height:0;border-top-width:2px;border-top-style:solid;vertical-align:middle;margin-right:7px}
+
+/* ---------- 面板 ---------- */
+.panel{
+  position:fixed;top:0;right:0;width:min(430px,92vw);height:100%;background:var(--paper);color:var(--ink);
+  transform:translateX(102%);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:100;
+  overflow-y:auto;box-shadow:-10px 0 44px rgba(0,0,0,.5);
+}
+.panel.on{transform:translateX(0)}
+.panel .head{padding:26px 26px 20px;color:#fff;position:relative}
+.panel .head h3{font-family:var(--serif);font-size:28px;letter-spacing:.06em}
+.panel .head .en{font-size:10px;letter-spacing:.3em;opacity:.8;text-transform:uppercase;margin-top:4px}
+.panel .head .meta{font-size:12px;opacity:.9;margin-top:10px}
+.panel .x{position:absolute;top:18px;right:20px;background:rgba(255,255,255,.2);border:none;color:#fff;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1}
+.panel .bd{padding:22px 26px 60px}
+.panel h4{font-family:var(--serif);font-size:13px;letter-spacing:.2em;color:#9a7b4a;margin:24px 0 10px;
+  padding-bottom:6px;border-bottom:1px solid #e3d9c6}
+.panel h4:first-child{margin-top:0}
+.panel p{font-size:14px;color:#33434f}
+.nmline{display:flex;gap:10px;font-size:13.5px;padding:7px 0;border-bottom:1px dotted #ddd2bd}
+.nmline b{font-weight:600;color:var(--ink)}
+.nmline .y{color:#8b7a5f;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:92px}
+.nmline.pre b{color:#9a9a9a;font-weight:400}
+.ev{display:flex;gap:12px;font-size:13.5px;padding:7px 0}
+.ev .y{font-family:var(--serif);color:var(--accent);font-weight:700;min-width:42px}
+.rel{background:#f0e9da;border-left:3px solid #9a7b4a;padding:12px 14px;margin-top:12px;font-size:13px;border-radius:0 6px 6px 0}
+.rel b{display:block;font-size:11px;letter-spacing:.18em;color:#9a7b4a;margin-bottom:5px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.3s;z-index:99}
+.scrim.on{opacity:1;pointer-events:auto}
+
+/* ---------- 時間 ---------- */
+.yearhead{display:flex;align-items:baseline;gap:16px;margin-bottom:6px;flex-wrap:wrap}
+.yearhead .y{font-family:var(--serif);font-size:56px;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.yearhead .n{font-size:13px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent);height:30px;margin:10px 0 4px}
+.ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:26px}
+.evfeed{margin-top:26px;border-top:1px solid var(--line);padding-top:18px;min-height:70px}
+.evfeed div{font-size:14px;padding:6px 0;color:#cfe2f0}
+.evfeed .dot{color:var(--accent);margin-right:8px}
+
+/* ---------- 清單 ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;padding:11px 10px;border-bottom:2px solid var(--line);color:var(--accent);
+  font-weight:600;font-size:11px;letter-spacing:.18em;white-space:nowrap}
+.tbl td{padding:12px 10px;border-bottom:1px solid #16344d;vertical-align:top}
+.tbl tr{cursor:pointer}
+.tbl tr:hover td{background:rgba(224,164,88,.07)}
+.chip{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:middle}
+.st{font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.08em;white-space:nowrap}
+.st.a{background:rgba(14,124,74,.25);color:#7fd6a5}
+.st.s{background:rgba(179,54,54,.2);color:#e09090}
+.st.t{background:rgba(138,143,168,.2);color:#b4bcd0}
+.names{color:var(--muted);font-size:12.5px}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;padding:4px 14px 10px;background:rgba(0,0,0,.16)}
+
+/* ---------- 本體 ---------- */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.card .k{font-family:var(--serif);font-size:16px;color:var(--accent);letter-spacing:.04em}
+.card .k small{font-family:var(--sans);font-size:11px;color:var(--muted);letter-spacing:.1em;margin-left:8px}
+.card p{font-size:13px;color:#b9cfe0;margin-top:7px}
+.card .ex{font-size:12px;color:var(--muted);margin-top:9px;padding-top:8px;border-top:1px dotted #2b5878}
+.qa{border-left:2px solid var(--accent);padding:4px 0 4px 18px;margin-bottom:24px}
+.qa .q{font-family:var(--serif);font-size:17px;color:var(--sand);margin-bottom:8px}
+.qa .a{font-size:14px;color:#aec6d8}
+h3.sec{font-family:var(--serif);font-size:15px;letter-spacing:.24em;color:var(--accent);margin:40px 0 16px;
+  padding-bottom:8px;border-bottom:1px solid var(--line)}
+h3.sec:first-of-type{margin-top:0}
+
+footer{border-top:1px solid var(--line);padding:30px 0 50px;font-size:12px;color:var(--muted);line-height:2}
+footer a{color:#9fc0d8}
+footer .note{margin-top:12px;font-size:11.5px;opacity:.75}
+@media(max-width:620px){
+  .hero{padding:46px 0 32px}
+  .yearhead .y{font-size:40px}
+  section.view{padding:30px 0 56px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>棒球群島</h1>
+    <div class="en">Baseball Archipelago</div>
+    <div class="tag">把球團，連起來。</div>
+    <div class="sub">中華職棒 1990–2026 ・ 浮島、沉島，以及島與島之間那些說不清楚的線</div>
+    <div class="counts">
+      <div><b id="cA">6</b><span>浮島</span></div>
+      <div><b id="cS">4</b><span>沉島</span></div>
+      <div><b id="cT">4</b><span>幽靈島</span></div>
+      <div><b id="cN">0</b><span>隊名</span></div>
+    </div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <button class="on" data-v="map">⌂ 全景</button>
+  <button data-v="time">◷ 時間</button>
+  <button data-v="list">☰ 清單</button>
+  <button data-v="onto">◇ 本體</button>
+  <button data-v="about">? 關於</button>
+</div></nav>
+
+<!-- ============ 全景 ============ -->
+<section class="view on" id="v-map"><div class="wrap">
+  <h2>群島全景</h2>
+  <p class="lede">一支球團一座島。島的大小是它存在的年數，浮在水面上的是今天還在打的六隊，沉在下面的是已經消失的。島與島之間的線不是裝飾——每一條都標明了關係類型，虛線表示本站認為這條關係有爭議。點任何一座島看它的身世。</p>
+  <div class="mapbox">
+    <svg class="map" id="map" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="legend">
+      <span><i style="border-color:#5fa8d3"></i>併入 mergedInto</span>
+      <span><i style="border-color:#e0a458;border-top-style:dashed"></i>隊名交換 nameSwap</span>
+      <span><i style="border-color:#b36a6a;border-top-style:dotted"></i>明確無關 noRelation</span>
+      <span><i style="border-color:#7fd6a5;border-top-style:dashed"></i>重生 revivedAs</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ 時間 ============ -->
+<section class="view" id="v-time"><div class="wrap">
+  <h2>島嶼的浮沉</h2>
+  <p class="lede">拉動時間，看這片海在 37 年裡怎麼改變。1990 年只有四座島，1993 年多了兩座，1999 年一口氣沉掉兩座，2003 年台灣大聯盟整片併進來，2019 年沉了二十年的味全龍重新浮出水面。</p>
+  <div class="yearhead">
+    <div class="y" id="yNow">2026</div>
+    <div class="n" id="yCount"></div>
+  </div>
+  <input type="range" id="slider" min="1990" max="2026" value="2026" step="1">
+  <div class="ticks"><span>1990</span><span>1999</span><span>2008</span><span>2017</span><span>2026</span></div>
+  <div class="mapbox">
+    <svg class="map" id="map2" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="evfeed" id="evfeed"></div>
+</div></section>
+
+<!-- ============ 清單 ============ -->
+<section class="view" id="v-list"><div class="wrap">
+  <h2>球團一覽</h2>
+  <p class="lede">十四個球團、三十多個隊名。「總冠軍」一欄只填寫本資料集有把握的數字，其餘留白——缺資料就寫缺資料，不猜。</p>
+  <div class="tblwrap"><table class="tbl" id="tbl">
+    <thead><tr><th>球團</th><th>狀態</th><th>存續</th><th>隊名沿革</th><th>總冠軍</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</div></section>
+
+<!-- ============ 本體 ============ -->
+<section class="view" id="v-onto"><div class="wrap">
+  <h2>這座群島底下的本體</h2>
+  <p class="lede">這個網站不是一張地圖，是一個本體（ontology）的介面。島是類別的實例，線是 object property，而真正花時間的部分是那些「要不要連」的判斷。以下把整組定義與設計決策攤開。</p>
+
+  <h3 class="sec">類別 CLASSES</h3>
+  <div class="grid2" id="oCls"></div>
+
+  <h3 class="sec">關係 PROPERTIES</h3>
+  <div class="grid2" id="oPrp"></div>
+
+  <h3 class="sec">設計決策 DESIGN DECISIONS</h3>
+  <div id="oDec"></div>
+</div></section>
+
+<!-- ============ 關於 ============ -->
+<section class="view" id="v-about"><div class="wrap">
+  <h2>關於這片海</h2>
+  <p class="lede">一個棒球迷的資料練習，同時是一份知識組織作業。</p>
+  <div class="qa"><div class="q">為什麼是球團，而不是球員？</div><div class="a">因為球團數量小到一個人做得完，但同一性問題大到足以把本體建模的每個難處都踩一遍：改名算不算同一個東西、換老闆算不算、解散二十年後用同一個名字回來算不算、兩支球隊互換名字之後誰是誰。這些問題在球員身上不會出現，在球團身上全部出現。</div></div>
+  <div class="qa"><div class="q">為什麼叫群島？</div><div class="a">因為球團不是一張清單。它們彼此之間有血緣、有合併、有斷裂，有些島是從別的島漂過來的，有些沉了就沒再浮起來。清單畫不出這些，地圖可以。</div></div>
+  <div class="qa"><div class="q">哪裡還不完整？</div><div class="a">球員、球場、球季、比賽都還沒建。總冠軍次數只填了查得到確切清單的幾隊。這份資料集的目標不是蓋滿，是讓每個類別至少有實例、每條關係至少有一個站得住的案例。</div></div>
+  <div class="qa"><div class="q">資料怎麼存？</div><div class="a">全部在 <code>franchises.js</code> 這一支檔案裡，頁面只負責渲染。想改資料不必動版面，想換版面不必動資料。</div></div>
+</div></section>
+
+<footer><div class="wrap">
+  <div id="srcs"></div>
+  <div class="note">
+    資料擷取日期 <span id="dt"></span>。本站為課堂練習之非官方作品，與中華職棒大聯盟、各球團及台灣棒球維基館均無隸屬關係。
+    沿革年份以各球團公開資料為準，判定與分類為本站作者之編輯選擇，歡迎指正。
+  </div>
+</div></footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel">
+  <div class="head" id="pHead">
+    <button class="x" id="pX">✕</button>
+    <h3 id="pName"></h3>
+    <div class="en" id="pEn"></div>
+    <div class="meta" id="pMeta"></div>
+  </div>
+  <div class="bd" id="pBody"></div>
+</aside>
+
+<script src="franchises.js"></script>
+<script>
+(function(){
+const D = window.ARCHIPELAGO, IS = D.islands, CU = D.currents;
+const W=1000,H=620, PX=x=>70+(x/100)*860, PY=y=>60+(y/100)*500;
+const byId = id => IS.find(i=>i.id===id);
+const span = i => { const s=i.spans; return s.map(p=>p[0]+"–"+(p[1]>=D.meta.yearMax?"":p[1])).join("、"); };
+const alive = (i,y) => i.spans.some(p=>y>=p[0]&&y<=p[1]);
+const years = i => i.spans.reduce((a,p)=>a+(p[1]-p[0]+1),0);
+
+/* ---- 計數 ---- */
+document.getElementById('cA').textContent=IS.filter(i=>i.status==='active').length;
+document.getElementById('cS').textContent=IS.filter(i=>i.status==='sunk').length;
+document.getElementById('cT').textContent=IS.filter(i=>i.status==='tml').length;
+document.getElementById('cN').textContent=IS.reduce((a,i)=>a+i.names.length,0);
+document.getElementById('dt').textContent=D.meta.retrieved;
+
+/* ---- 島的形狀 ---- */
+function islePath(r,seed){
+  let d="",n=11;
+  for(let k=0;k<=n;k++){
+    const a=Math.PI*(k/n), w=r*(1+0.14*Math.sin(seed+k*1.7));
+    const x=-w*Math.cos(a), y=-r*0.62*Math.sin(a)*(1+0.1*Math.cos(seed+k));
+    d+=(k?"L":"M")+x.toFixed(1)+","+y.toFixed(1);
+  }
+  return d+"Z";
+}
+function drawIsle(i,svg,opts){
+  opts=opts||{};
+  const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+  g.setAttribute("class","isle "+(i.status==='sunk'?'sunk':''));
+  g.setAttribute("transform","translate("+PX(i.x)+","+PY(i.y)+")");
+  const r=26+years(i)*0.95*i.size, sunk=i.status!=='active';
+  const op=i.status==='tml'?0.42:(i.status==='sunk'?0.6:1);
+  const seed=i.id.charCodeAt(2)||3;
+  g.innerHTML=
+    '<g class="body" opacity="'+op+'">'+
+      '<ellipse cx="0" cy="7" rx="'+(r*1.22).toFixed(1)+'" ry="'+(r*0.3).toFixed(1)+'" fill="#0a2d4a" opacity=".55"/>'+
+      '<path d="'+islePath(r,seed)+'" fill="'+i.color+'" opacity="'+(sunk?.55:.92)+'"/>'+
+      '<path d="'+islePath(r*0.62,seed+2)+'" transform="translate(0,-'+(r*0.12).toFixed(1)+')" fill="#fff" opacity="'+(sunk?.07:.17)+'"/>'+
+      '<path d="M-'+(r*1.25).toFixed(1)+',8 Q0,'+(r*0.3+8).toFixed(1)+' '+(r*1.25).toFixed(1)+',8" fill="none" stroke="#9fd4f0" stroke-width="1.1" opacity="'+(sunk?.3:.55)+'"/>'+
+    '</g>'+
+    '<text class="nm" y="'+(r*0.42+20).toFixed(1)+'">'+i.label+'</text>'+
+    '<text class="yr" y="'+(r*0.42+34).toFixed(1)+'">'+span(i)+'</text>';
+  g.addEventListener("click",()=>open(i.id));
+  svg.appendChild(g);
+  return g;
+}
+function drawCurrent(c,svg){
+  const a=byId(c.from),b=byId(c.to); if(!a||!b)return;
+  const x1=PX(a.x),y1=PY(a.y),x2=PX(b.x),y2=PY(b.y);
+  const mx=(x1+x2)/2,my=(y1+y2)/2-Math.abs(x2-x1)*0.17-18;
+  const style={mergedInto:["#5fa8d3","none",1.6],nameSwap:["#e0a458","7 5",2],
+               noRelation:["#b36a6a","2 6",1.6],revivedAs:["#7fd6a5","6 5",1.8]}[c.type]||["#5fa8d3","none",1.5];
+  const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+  p.setAttribute("class","cur");
+  p.setAttribute("d","M"+x1+","+y1+" Q"+mx+","+my+" "+x2+","+y2);
+  p.setAttribute("stroke",style[0]); p.setAttribute("stroke-dasharray",style[1]);
+  p.setAttribute("stroke-width",style[2]); p.setAttribute("opacity",".65");
+  svg.appendChild(p);
+  const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+  t.setAttribute("class","curlbl"); t.setAttribute("x",mx); t.setAttribute("y",my+2);
+  t.textContent=c.label; svg.appendChild(t);
+}
+function waterline(svg,y,label){
+  svg.insertAdjacentHTML('beforeend',
+    '<line x1="40" y1="'+y+'" x2="960" y2="'+y+'" stroke="#2b5878" stroke-width="1" stroke-dasharray="3 7"/>'+
+    '<text x="46" y="'+(y-7)+'" font-size="9" fill="#5b7f9c" letter-spacing="3">WATERLINE ｜ 水面</text>'+
+    '<text x="46" y="'+(y+16)+'" font-size="9" fill="#5b7f9c" letter-spacing="3">'+label+'</text>');
+}
+
+/* ---- 全景 ---- */
+const svg=document.getElementById('map');
+waterline(svg,PY(74),'已消失的球團');
+CU.forEach(c=>drawCurrent(c,svg));
+IS.forEach(i=>drawIsle(i,svg));
+svg.insertAdjacentHTML('beforeend',
+ '<text x="960" y="'+(PY(48)-8)+'" font-size="9" fill="#5b7f9c" text-anchor="end" letter-spacing="3">台灣大聯盟 1997–2002</text>');
+
+/* ---- 時間 ---- */
+const svg2=document.getElementById('map2');
+waterline(svg2,PY(74),'已消失的球團');
+const nodes2={};
+CU.forEach(c=>drawCurrent(c,svg2));
+IS.forEach(i=>{nodes2[i.id]=drawIsle(i,svg2);});
+const sl=document.getElementById('slider');
+function setYear(y){
+  document.getElementById('yNow').textContent=y;
+  let n=0;
+  IS.forEach(i=>{const on=alive(i,y);nodes2[i.id].classList.toggle('dim',!on);if(on&&i.status!=='tml')n++;});
+  const tml=IS.filter(i=>i.status==='tml'&&alive(i,y)).length;
+  document.getElementById('yCount').textContent='中職 '+n+' 隊'+(tml?'　／　台灣大聯盟 '+tml+' 隊':'');
+  const feed=[];
+  IS.forEach(i=>i.events.filter(e=>e.year===+y).forEach(e=>feed.push([i,e])));
+  document.getElementById('evfeed').innerHTML = feed.length
+    ? feed.map(([i,e])=>'<div><span class="dot">●</span><b style="color:'+i.color+'">'+i.label+'</b>　'+e.text+'</div>').join('')
+    : '<div style="color:#5b7f9c">這一年群島沒有變動。</div>';
+}
+sl.addEventListener('input',e=>setYear(+e.target.value));
+setYear(2026);
+
+/* ---- 清單 ---- */
+const tb=document.querySelector('#tbl tbody');
+const stName={active:['a','現役'],sunk:['s','已消失'],tml:['t','前聯盟']};
+IS.forEach(i=>{
+  const s=stName[i.status];
+  const tr=document.createElement('tr');
+  tr.innerHTML='<td><span class="chip" style="background:'+i.color+'"></span><b>'+i.label+'</b></td>'+
+    '<td><span class="st '+s[0]+'">'+s[1]+'</span></td>'+
+    '<td style="white-space:nowrap;font-variant-numeric:tabular-nums">'+span(i)+'<br><span class="names">共 '+years(i)+' 年</span></td>'+
+    '<td class="names">'+i.names.filter(n=>!n.pre).map(n=>n.name).join(' → ')+'</td>'+
+    '<td style="font-family:var(--serif);color:'+(i.titles===null?'#5b7f9c':'var(--accent)')+'">'+(i.titles===null?'—':i.titles)+'</td>';
+  tr.addEventListener('click',()=>open(i.id));
+  tb.appendChild(tr);
+});
+
+/* ---- 本體 ---- */
+document.getElementById('oCls').innerHTML=D.ontology.classes.map(c=>
+  '<div class="card"><div class="k">'+c.name+'<small>'+c.zh+(c.count?'　'+c.count+' 筆':'')+'</small></div><p>'+c.desc+'</p></div>').join('');
+document.getElementById('oPrp').innerHTML=D.ontology.properties.map(p=>
+  '<div class="card"><div class="k">'+p.name+'<small>'+p.domain+'</small></div><p>'+p.desc+'</p><div class="ex">例：'+p.example+'</div></div>').join('');
+document.getElementById('oDec').innerHTML=D.ontology.decisions.map(d=>
+  '<div class="qa"><div class="q">'+d.q+'</div><div class="a">'+d.a+'</div></div>').join('');
+document.getElementById('srcs').innerHTML='資料來源：'+D.sources.map(s=>'<a href="'+s.url+'" target="_blank" rel="noopener">'+s.name+'</a>').join('　・　');
+
+/* ---- 面板 ---- */
+const panel=document.getElementById('panel'),scrim=document.getElementById('scrim');
+function open(id){
+  const i=byId(id); if(!i)return;
+  document.getElementById('pHead').style.background='linear-gradient(135deg,'+i.color+','+shade(i.color,-32)+')';
+  document.getElementById('pName').textContent=i.label;
+  document.getElementById('pEn').textContent=i.en;
+  document.getElementById('pMeta').textContent=stName[i.status][1]+'　・　'+span(i)+'　・　共 '+years(i)+' 年'+(i.home?'　・　'+i.home:'');
+  const rels=CU.filter(c=>c.from===i.id||c.to===i.id);
+  document.getElementById('pBody').innerHTML=
+    '<h4>身世</h4><p>'+i.story+'</p>'+
+    '<h4>隊名沿革</h4>'+i.names.map(n=>'<div class="nmline'+(n.pre?' pre':'')+'"><span class="y">'+n.from+'–'+(n.to||'現在')+'</span><b>'+n.name+'</b>'+(n.pre?'<span style="font-size:11px;color:#aaa">加盟前</span>':'')+'</div>').join('')+
+    '<h4>沿革事件</h4>'+i.events.map(e=>'<div class="ev"><span class="y">'+e.year+'</span><span>'+e.text+'</span></div>').join('')+
+    (i.titles!==null?'<h4>年度總冠軍</h4><p>'+i.titles+' 次</p>':'<h4>年度總冠軍</h4><p style="color:#8b7a5f">本資料集尚未查證，留空。</p>')+
+    (rels.length?'<h4>關係</h4>'+rels.map(c=>{
+      const other=byId(c.from===i.id?c.to:c.from);
+      return '<div class="rel"><b>'+c.type+(c.contested?'　◆ 有爭議':'')+'</b>'+
+        (c.from===i.id?'→ ':'← ')+other.label+'（'+c.year+'）'+(c.note?'<br><span style="color:#6b5a42">'+c.note+'</span>':'')+'</div>';
+    }).join(''):'');
+  panel.classList.add('on');scrim.classList.add('on');
+}
+function close(){panel.classList.remove('on');scrim.classList.remove('on');}
+document.getElementById('pX').addEventListener('click',close);
+scrim.addEventListener('click',close);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+function shade(hex,p){
+  const n=parseInt(hex.slice(1),16),R=(n>>16)+p,G=(n>>8&255)+p,B=(n&255)+p;
+  const c=v=>Math.max(0,Math.min(255,v));
+  return '#'+((1<<24)+(c(R)<<16)+(c(G)<<8)+c(B)).toString(16).slice(1);
+}
+
+/* ---- 導覽 ---- */
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('section.view').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('v-'+b.dataset.v).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+})();
+</script>
+</body>
+</html>
